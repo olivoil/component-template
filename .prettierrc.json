@@ -1,5 +1,8 @@
 {
   "tabWidth": 2,
   "trailingComma": "es5",
+  "svelteSortOrder": "markup-scripts-styles",
+  "svelteStrictMode": true,
+  "allowShorthand": true,
   "plugins": ["prettier-plugin-svelte"]
 }
