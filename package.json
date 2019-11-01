@@ -1,9 +1,9 @@
 {
   "name": "SvelteComponent",
   "svelte": "src/index.svelte",
-  "module": "index.mjs",
-  "main": "index.js",
-  "style": "index.css",
+  "module": "dist/index.mjs",
+  "main": "dist/index.js",
+  "style": "dist/index.css",
   "scripts": {
     "format": "npx prettier --write \"{,!(node_modules)/**/}*.{js,jsx,svelte}\"",
     "build": "rollup -c",
