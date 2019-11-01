@@ -3,12 +3,16 @@
   "svelte": "src/index.svelte",
   "module": "index.mjs",
   "main": "index.js",
+  "style": "index.css",
   "scripts": {
-    "format": "npx prettier --write \"{,!(node_modules)/**/}*.{js,jsx}\"",
+    "format": "npx prettier --write \"{,!(node_modules)/**/}*.{js,jsx,svelte}\"",
     "build": "rollup -c",
+    "dev": "concurrently \"rollup -c -w\" \"sirv public --single --dev\"",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "concurrently": "^5.0.0",
+    "dotenv": "^8.2.0",
     "eslint": "^6.6.0",
     "eslint-plugin-svelte3": "^2.7.3",
     "prettier": "^1.18.2",
@@ -16,6 +20,7 @@
     "rollup": "^1.11.0",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-svelte": "^5.0.0",
+    "sirv-cli": "^0.4.5",
     "svelte": "^3.0.0"
   },
   "keywords": [
