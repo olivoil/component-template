@@ -1,5 +1,5 @@
 <script>
-  export let name = "";
+  export let names = [];
 
   const capitalize = str =>
     str ? str[0].toUpperCase() + str.slice(1).toLowerCase() : "";
@@ -13,6 +13,13 @@
 </style>
 
 <main>
-  <h1>hello {capitalize(name)}!</h1>
+  <h1>hello!</h1>
+  {#if names.length}
+    <ul>
+      {#each names as name}
+        <li>{capitalize(name)}</li>
+      {/each}
+    </ul>
+  {/if}
   <slot />
 </main>

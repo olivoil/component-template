@@ -1,7 +1,7 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
-    (global = global || self, global.SvelteComponent = factory());
+    (global = global || self, global.Component = factory());
 }(this, (function () { 'use strict';
 
     function run(fn) {
@@ -27,6 +27,13 @@
     };
     function escape(html) {
         return String(html).replace(/["'&<>]/g, match => escaped[match]);
+    }
+    function each(items, fn) {
+        let str = '';
+        for (let i = 0; i < items.length; i += 1) {
+            str += fn(items[i], i);
+        }
+        return str;
     }
     let on_destroy;
     function create_ssr_component(fn) {
@@ -69,21 +76,26 @@
 
     const css = {
     	code: "main.svelte-1l6968b{background-color:gray;color:white}",
-    	map: "{\"version\":3,\"file\":\"index.svelte\",\"sources\":[\"index.svelte\"],\"sourcesContent\":[\"<script>\\n  export let name = \\\"\\\";\\n\\n  const capitalize = str =>\\n    str ? str[0].toUpperCase() + str.slice(1).toLowerCase() : \\\"\\\";\\n</script>\\n\\n<style>\\n  main {\\n    background-color: gray;\\n    color: white;\\n  }\\n</style>\\n\\n<main>\\n  <h1>hello {capitalize(name)}!</h1>\\n  <slot />\\n</main>\\n\"],\"names\":[],\"mappings\":\"AAQE,IAAI,eAAC,CAAC,AACJ,gBAAgB,CAAE,IAAI,CACtB,KAAK,CAAE,KAAK,AACd,CAAC\"}"
+    	map: "{\"version\":3,\"file\":\"index.svelte\",\"sources\":[\"index.svelte\"],\"sourcesContent\":[\"<script>\\n  export let names = [];\\n\\n  const capitalize = str =>\\n    str ? str[0].toUpperCase() + str.slice(1).toLowerCase() : \\\"\\\";\\n</script>\\n\\n<style>\\n  main {\\n    background-color: gray;\\n    color: white;\\n  }\\n</style>\\n\\n<main>\\n  <h1>hello!</h1>\\n  {#if names.length}\\n    <ul>\\n      {#each names as name}\\n        <li>{capitalize(name)}</li>\\n      {/each}\\n    </ul>\\n  {/if}\\n  <slot />\\n</main>\\n\"],\"names\":[],\"mappings\":\"AAQE,IAAI,eAAC,CAAC,AACJ,gBAAgB,CAAE,IAAI,CACtB,KAAK,CAAE,KAAK,AACd,CAAC\"}"
     };
 
     const Src = create_ssr_component(($$result, $$props, $$bindings, $$slots) => {
-    	let { name = "" } = $$props;
+    	let { names = [] } = $$props;
 
     	const capitalize = str => str
     	? str[0].toUpperCase() + str.slice(1).toLowerCase()
     	: "";
 
-    	if ($$props.name === void 0 && $$bindings.name && name !== void 0) $$bindings.name(name);
+    	if ($$props.names === void 0 && $$bindings.names && names !== void 0) $$bindings.names(names);
     	$$result.css.add(css);
 
     	return `<main class="${"svelte-1l6968b"}">
-  <h1>hello ${escape(capitalize(name))}!</h1>
+  <h1>hello!</h1>
+  ${names.length
+	? `<ul>
+      ${each(names, name => `<li>${escape(capitalize(name))}</li>`)}
+    </ul>`
+	: ``}
   ${$$slots.default ? $$slots.default({}) : ``}
 </main>`;
     });

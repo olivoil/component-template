@@ -1,20 +1,22 @@
 {
   "name": "svelte-component",
   "svelte": "src/index.svelte",
-  "module": "index.mjs",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
     "server:watch": "nodemon server.js",
     "dev": "run-p build:watch server:watch",
-    "prepublishOnly": "npm run build"
+    "dist": "gulp dist",
+    "prepublishOnly": "gulp dist --props '{}' --target 'document.body'"
   },
   "devDependencies": {
     "compression": "^1.7.4",
     "easy-livereload": "^1.3.2",
+    "gulp": "^4.0.2",
     "mustache": "^3.1.0",
     "nodemon": "^1.19.4",
+    "npm": "^6.13.0",
     "npm-run-all": "^4.1.5",
     "polka": "^0.5.2",
     "rollup": "^1.11.0",

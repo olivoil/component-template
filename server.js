@@ -33,8 +33,10 @@ polka() // You can also use Express
       ],
     }),
     (req, res) => {
+      console.log('new request');
+      console.log(req);
       const { html, css, head } = ssr.render(req.query);
-      console.log(html, css, head);
+      //console.log(html, css, head);
 
       res.writeHead(200, {
         'Content-Type': 'text/html',
@@ -50,7 +52,7 @@ polka() // You can also use Express
             target: document.getElementById('sapper'),
             hydrate: true,
             props: {
-		          name: 'me'
+		          names: [${req.query.names ? req.query.names.join(',') : ''}]
 	          }
           });
         </script>

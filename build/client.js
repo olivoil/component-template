@@ -1,4 +1,4 @@
-var SvelteComponent = (function () {
+var Component = (function () {
     'use strict';
 
     function noop() { }
@@ -48,6 +48,12 @@ var SvelteComponent = (function () {
     }
     function detach(node) {
         node.parentNode.removeChild(node);
+    }
+    function destroy_each(iterations, detaching) {
+        for (let i = 0; i < iterations.length; i += 1) {
+            if (iterations[i])
+                iterations[i].d(detaching);
+        }
     }
     function element(name) {
         return document.createElement(name);
@@ -306,15 +312,116 @@ var SvelteComponent = (function () {
     	append(document.head, style);
     }
 
+    function get_each_context(ctx, list, i) {
+    	const child_ctx = Object.create(ctx);
+    	child_ctx.name = list[i];
+    	return child_ctx;
+    }
+
+    // (17:2) {#if names.length}
+    function create_if_block(ctx) {
+    	let ul;
+    	let each_value = ctx.names;
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	return {
+    		c() {
+    			ul = element("ul");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+    		},
+    		l(nodes) {
+    			ul = claim_element(nodes, "UL", {});
+    			var ul_nodes = children(ul);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].l(ul_nodes);
+    			}
+
+    			ul_nodes.forEach(detach);
+    		},
+    		m(target, anchor) {
+    			insert(target, ul, anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(ul, null);
+    			}
+    		},
+    		p(changed, ctx) {
+    			if (changed.capitalize || changed.names) {
+    				each_value = ctx.names;
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(ul, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+    		},
+    		d(detaching) {
+    			if (detaching) detach(ul);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+    }
+
+    // (19:6) {#each names as name}
+    function create_each_block(ctx) {
+    	let li;
+    	let t_value = ctx.capitalize(ctx.name) + "";
+    	let t;
+
+    	return {
+    		c() {
+    			li = element("li");
+    			t = text(t_value);
+    		},
+    		l(nodes) {
+    			li = claim_element(nodes, "LI", {});
+    			var li_nodes = children(li);
+    			t = claim_text(li_nodes, t_value);
+    			li_nodes.forEach(detach);
+    		},
+    		m(target, anchor) {
+    			insert(target, li, anchor);
+    			append(li, t);
+    		},
+    		p(changed, ctx) {
+    			if (changed.names && t_value !== (t_value = ctx.capitalize(ctx.name) + "")) set_data(t, t_value);
+    		},
+    		d(detaching) {
+    			if (detaching) detach(li);
+    		}
+    	};
+    }
+
     function create_fragment(ctx) {
     	let main;
     	let h1;
     	let t0;
-    	let t1_value = ctx.capitalize(ctx.name) + "";
     	let t1;
     	let t2;
-    	let t3;
     	let current;
+    	let if_block = ctx.names.length && create_if_block(ctx);
     	const default_slot_template = ctx.$$slots.default;
     	const default_slot = create_slot(default_slot_template, ctx, null);
 
@@ -322,10 +429,10 @@ var SvelteComponent = (function () {
     		c() {
     			main = element("main");
     			h1 = element("h1");
-    			t0 = text("hello ");
-    			t1 = text(t1_value);
-    			t2 = text("!");
-    			t3 = space();
+    			t0 = text("hello!");
+    			t1 = space();
+    			if (if_block) if_block.c();
+    			t2 = space();
     			if (default_slot) default_slot.c();
     			this.h();
     		},
@@ -334,11 +441,11 @@ var SvelteComponent = (function () {
     			var main_nodes = children(main);
     			h1 = claim_element(main_nodes, "H1", {});
     			var h1_nodes = children(h1);
-    			t0 = claim_text(h1_nodes, "hello ");
-    			t1 = claim_text(h1_nodes, t1_value);
-    			t2 = claim_text(h1_nodes, "!");
+    			t0 = claim_text(h1_nodes, "hello!");
     			h1_nodes.forEach(detach);
-    			t3 = claim_space(main_nodes);
+    			t1 = claim_space(main_nodes);
+    			if (if_block) if_block.l(main_nodes);
+    			t2 = claim_space(main_nodes);
     			if (default_slot) default_slot.l(main_nodes);
     			main_nodes.forEach(detach);
     			this.h();
@@ -350,9 +457,9 @@ var SvelteComponent = (function () {
     			insert(target, main, anchor);
     			append(main, h1);
     			append(h1, t0);
-    			append(h1, t1);
-    			append(h1, t2);
-    			append(main, t3);
+    			append(main, t1);
+    			if (if_block) if_block.m(main, null);
+    			append(main, t2);
 
     			if (default_slot) {
     				default_slot.m(main, null);
@@ -361,7 +468,18 @@ var SvelteComponent = (function () {
     			current = true;
     		},
     		p(changed, ctx) {
-    			if ((!current || changed.name) && t1_value !== (t1_value = ctx.capitalize(ctx.name) + "")) set_data(t1, t1_value);
+    			if (ctx.names.length) {
+    				if (if_block) {
+    					if_block.p(changed, ctx);
+    				} else {
+    					if_block = create_if_block(ctx);
+    					if_block.c();
+    					if_block.m(main, t2);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
 
     			if (default_slot && default_slot.p && changed.$$scope) {
     				default_slot.p(get_slot_changes(default_slot_template, ctx, changed, null), get_slot_context(default_slot_template, ctx, null));
@@ -378,13 +496,14 @@ var SvelteComponent = (function () {
     		},
     		d(detaching) {
     			if (detaching) detach(main);
+    			if (if_block) if_block.d();
     			if (default_slot) default_slot.d(detaching);
     		}
     	};
     }
 
     function instance($$self, $$props, $$invalidate) {
-    	let { name = "" } = $$props;
+    	let { names = [] } = $$props;
 
     	const capitalize = str => str
     	? str[0].toUpperCase() + str.slice(1).toLowerCase()
@@ -393,18 +512,18 @@ var SvelteComponent = (function () {
     	let { $$slots = {}, $$scope } = $$props;
 
     	$$self.$set = $$props => {
-    		if ("name" in $$props) $$invalidate("name", name = $$props.name);
+    		if ("names" in $$props) $$invalidate("names", names = $$props.names);
     		if ("$$scope" in $$props) $$invalidate("$$scope", $$scope = $$props.$$scope);
     	};
 
-    	return { name, capitalize, $$slots, $$scope };
+    	return { names, capitalize, $$slots, $$scope };
     }
 
     class Src extends SvelteComponent {
     	constructor(options) {
     		super();
     		if (!document.getElementById("svelte-1l6968b-style")) add_css();
-    		init(this, options, instance, create_fragment, safe_not_equal, { name: 0 });
+    		init(this, options, instance, create_fragment, safe_not_equal, { names: 0 });
     	}
     }
 
