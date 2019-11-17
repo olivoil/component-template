@@ -27,9 +27,6 @@ exports.dist = async () => {
 
   fs.mkdirSync('./dist');
 
-  // copy static files
-  src('static').pipe(dest('./dist/'));
-
   // parse task arguments
   const props = yargs.argv.props || {};
   const target = yargs.argv.target || 'document.body';
