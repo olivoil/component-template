@@ -35,6 +35,7 @@ exports.dist = async () => {
   const ssr = require('./build/server');
   const { html, css, head } = ssr.render(props);
 
+  // write resources to dist folder
   fs.writeFileSync('./dist/body.html', html);
   if (css.code) fs.writeFileSync('./dist/style.css', css.code);
   if (head) fs.writeFileSync('./dist/head.html', head);
