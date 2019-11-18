@@ -1,9 +1,13 @@
 import svelte from 'rollup-plugin-svelte';
 import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
 import replace from 'rollup-plugin-replace';
 import pkg from './package.json';
+import { terser } from 'rollup-plugin-terser';
+import autoPreprocess from 'svelte-preprocess';
 
 const mode = process.env.NODE_ENV;
+const production = mode === 'production';
 
 const name = pkg.name
   .replace(/^(@\S+\/)?(svelte-)?(\S+)/, '$3')
@@ -19,13 +23,29 @@ export default Object.values({
         'process.browser': false,
         'process.env.NODE_ENV': JSON.stringify(mode),
       }),
-      svelte({ generate: 'dom', hydratable: true }),
+      svelte({
+        dev: !production,
+        generate: 'dom',
+        hydratable: true,
+      }),
       resolve(),
+      commonjs(),
+      production && terser(),
     ],
   },
   server: {
     input: 'src/index.svelte',
     output: [{ file: 'build/server.js', format: 'umd', name }],
-    plugins: [svelte({ generate: 'ssr', hydratable: true }), resolve()],
+    plugins: [
+      svelte({
+        preprocess: autoPreprocess({ postcss: true }),
+        dev: !production,
+        generate: 'ssr',
+        hydratable: true,
+      }),
+      resolve(),
+      commonjs(),
+      production && terser(),
+    ],
   },
 });
