@@ -29,5 +29,6 @@ module.exports = {
         return matchedTokens;
       },
     }),
+    require('cssnano')(),
   ],
 };
