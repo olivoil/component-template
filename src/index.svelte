@@ -27,10 +27,17 @@
     isRightDrawerOpen = !isRightDrawerOpen;
   }
 
-  let isUSA = true;
+  // TODO(olivoil): 1) figure out if this is client side 2) if so, implement i18n
+  let locales = ["en-US", "en-CA"];
+  export let locale = locales[0];
+  let isUSA = locale === "en-US";
 
   function toggleLocale() {
-    isUSA = !isUSA;
+    if (locale === "en-US") {
+      locale = "en-CA";
+    } else {
+      locale = "en-US";
+    }
   }
 </script>
 
@@ -110,18 +117,21 @@
           type="search"
           name="search"
           placeholder="Enter keyword to search"
-          class="bg-white h-12 w-full pl-5 pr-12 py-2 appearance-none leading-normal rounded-full text-sm focus:outline-none border border-gray-500" />
+          class="bg-white h-12 w-full pl-5 pr-12 py-2 appearance-none
+          leading-normal rounded-full text-sm focus:outline-none border
+          border-gray-500" />
 
         <button type="submit" class="text-actionblue absolute h-8 w-8 mr-2">
           <svg viewBox="0 0 24 24" fill="none">
-      <path
-        fill="currentColor"
-        fill-rule="evenodd"
-        clip-rule="evenodd"
-        d="M14.71 14h.79l4.99 5L19 20.49l-5-4.99v-.79l-.27-.28A6.471 6.471 0
-        019.5 16 6.5 6.5 0 1116 9.5c0 1.61-.59 3.09-1.57 4.23l.28.27zM5 9.5C5
-        11.99 7.01 14 9.5 14S14 11.99 14 9.5 11.99 5 9.5 5 5 7.01 5 9.5z" />
-    </svg>
+            <path
+              fill="currentColor"
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M14.71 14h.79l4.99 5L19 20.49l-5-4.99v-.79l-.27-.28A6.471 6.471
+              0 019.5 16 6.5 6.5 0 1116 9.5c0 1.61-.59 3.09-1.57 4.23l.28.27zM5
+              9.5C5 11.99 7.01 14 9.5 14S14 11.99 14 9.5 11.99 5 9.5 5 5 7.01 5
+              9.5z" />
+          </svg>
         </button>
       </div>
     </div>
