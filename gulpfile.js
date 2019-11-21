@@ -25,8 +25,8 @@ exports.clean = clean;
 const tailwind = () =>
   src('src/tailwind.css')
     .pipe(postcss())
-    .pipe(dest('build/'))
-    .pipe(livereload());
+    .pipe(dest('build/'));
+// .pipe(livereload());
 
 const rollup = async () => {
   await new Promise(resolve => npm.load(resolve));
@@ -84,7 +84,7 @@ const css = () =>
 const static = () =>
   src('static/**/*')
     .pipe(dest('dist/static'))
-    .pipe(livereload());
+    .pipe(livereload({ basePath: 'static' }));
 
 const example = () => {
   const body = fs.readFileSync('dist/_body.html', 'utf8').toString();
@@ -101,7 +101,7 @@ const example = () => {
       })
     )
     .pipe(dest('dist'))
-    .pipe(livereload());
+    .pipe(livereload({ basePath: '/' }));
 };
 
 const dist = series(
@@ -135,6 +135,9 @@ const dev = () => {
     )
     .listen(port, err => {
       if (err) console.log('error', err);
+      livereload.listen({
+        port: 49202,
+      });
       console.log(`listening on port ${port}`);
     });
 };

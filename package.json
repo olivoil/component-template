@@ -40,6 +40,7 @@
     "rollup-plugin-terser": "^5.1.2",
     "sirv": "^0.4.2",
     "svelte": "^3.0.0",
+    "svelte-css-vars": "0.0.1",
     "svelte-preprocess": "^3.2.6",
     "svelte-preprocess-postcss": "^1.1.1",
     "tailwindcss": "^1.1.3"
